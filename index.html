@@ -20,9 +20,8 @@
 
   /* --- iPod 外殼 --- */
   .ipod-case {
-    /* 使用相對單位或固定單位皆可，這裡維持固定以保證設計細節 */
     width: 360px; 
-    height: 640px; 
+    height: 620px; 
     background: #f0f0f0; 
     border-radius: 40px;
     box-shadow: 
@@ -37,7 +36,7 @@
     position: relative; 
     box-sizing: border-box;
 
-    /* 設定變形的原點在「上方中心」 */
+    /* 設定變形的原點在上方中心 */
     transform-origin: top center;
     transition: transform 0.3s ease; /* 讓縮放有動畫效果 */
   }
@@ -51,7 +50,7 @@
     }
   }
 
-  /* 當螢幕寬度小於 340px (小螢幕手機如 iPhone SE) 時，縮小到 0.8 倍 */
+  /* 當螢幕寬度小於 340px 時，縮小到 0.8 倍 */
   @media (max-width: 340px) {
     .ipod-case {
       transform: scale(0.8);
@@ -104,7 +103,7 @@
   /* --- 螢幕區域 --- */
   .screen-frame {
     width: 100%;
-    height: 380px; /* 維持高度以觸發 Spotify 列表模式 */
+    height: 360px; /* 維持高度以觸發 Spotify 列表模式 */
     background-color: #000; 
     border-radius: 12px; 
     border: 3px solid #333; 
