@@ -18,7 +18,7 @@
     overflow: hidden; /* 防止縮放時出現捲軸 */
   }
 
-  /* --- iPod 外殼 (容器) --- */
+  /* --- iPod 外殼 --- */
   .ipod-case {
     /* 使用相對單位或固定單位皆可，這裡維持固定以保證設計細節 */
     width: 360px; 
@@ -37,12 +37,12 @@
     position: relative; 
     box-sizing: border-box;
 
-    /* ★關鍵：設定變形的原點在「上方中心」 */
+    /* 設定變形的原點在「上方中心」 */
     transform-origin: top center;
     transition: transform 0.3s ease; /* 讓縮放有動畫效果 */
   }
 
-  /* --- ★關鍵：響應式設計 (Media Queries) --- */
+  /* --- 響應式設計 --- */
   /* 當螢幕寬度小於 380px (一般手機) 時，縮小到 0.9 倍 */
   @media (max-width: 380px) {
     .ipod-case {
@@ -79,7 +79,7 @@
     opacity: 1; 
     background-color: rgba(255, 255, 255, 0.25); 
     backdrop-filter: blur(4px); 
-    border-radius: 40px; /* 這裡讓感應區的背景也變成圓角 */
+    border-radius: 40px; 
   }
 
   /* 輸入框樣式 */
@@ -169,7 +169,7 @@
   <div class="ipod-case">
     
     <div class="input-zone">
-      <input type="text" id="spotifyLink" placeholder="在此貼上 Spotify 連結..." />
+      <input type="text" id="spotifyLink" placeholder="Your Spotify link..." />
     </div>
 
     <div class="screen-frame">
@@ -186,7 +186,7 @@
   </div>
 
 <script>
-  // --- 功能：載入儲存的歌曲 ---
+  // --- 載入儲存的歌曲 ---
   window.onload = function() {
     const savedUrl = localStorage.getItem('mySpotifyUrl');
     if (savedUrl) {
@@ -194,14 +194,14 @@
     }
   };
 
-  // --- 功能：監聽 Enter 鍵 ---
+  // --- 監聽 Enter 鍵 ---
   document.getElementById('spotifyLink').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
       changeMusic(this.value);
     }
   });
 
-  // --- 功能：更換音樂與儲存 ---
+  // --- 更換音樂與儲存 ---
   function changeMusic(url) {
     let embedUrl = "";
     // 檢查網址合法性
