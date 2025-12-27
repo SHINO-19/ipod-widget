@@ -5,20 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Notion iPod Widget</title>
 <style>
-  /* 基礎設定 */
+  /* --- 基礎設定 --- */
   body {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    justify-content: center; /* 垂直置中 */
+    align-items: center;     /* 水平置中 */
+    min-height: 100vh;       /* 確保高度至少填滿視窗 */
     margin: 0;
     background-color: transparent; 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden; /* 防止縮放時出現捲軸 */
   }
 
-  /* iPod 外殼 */
+  /* --- iPod 外殼 (容器) --- */
   .ipod-case {
+    /* 使用相對單位或固定單位皆可，這裡維持固定以保證設計細節 */
     width: 360px; 
     height: 640px; 
     background: #f0f0f0; 
@@ -28,20 +30,42 @@
       inset -5px -5px 15px rgba(0,0,0,0.1), 
       0 15px 35px rgba(0,0,0,0.2); 
     padding: 25px;
+    
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative; 
     box-sizing: border-box;
+
+    /* ★關鍵：設定變形的原點在「上方中心」 */
+    transform-origin: top center;
+    transition: transform 0.3s ease; /* 讓縮放有動畫效果 */
   }
 
-  /* Input Zone */
+  /* --- ★關鍵：響應式設計 (Media Queries) --- */
+  /* 當螢幕寬度小於 380px (一般手機) 時，縮小到 0.9 倍 */
+  @media (max-width: 380px) {
+    .ipod-case {
+      transform: scale(0.9);
+      margin-bottom: -60px; /* 縮小後修正下方留白 */
+    }
+  }
+
+  /* 當螢幕寬度小於 340px (小螢幕手機如 iPhone SE) 時，縮小到 0.8 倍 */
+  @media (max-width: 340px) {
+    .ipod-case {
+      transform: scale(0.8);
+      margin-bottom: -120px; /* 縮小後修正下方留白 */
+    }
+  }
+
+  /* --- 輸入框感應區 --- */
   .input-zone {
     position: absolute;
     top: 0;           
     left: 0;
     width: 100%;      
-    height: 50px;     
+    height: 60px; /* 加大一點點感應範圍 */    
     z-index: 20;      
     display: flex;    
     justify-content: center;
@@ -53,40 +77,40 @@
 
   .input-zone:hover {
     opacity: 1; 
-    background-color: rgba(255, 255, 255, 0.2); 
-    backdrop-filter: blur(2px); 
-    border-radius: 40px;
+    background-color: rgba(255, 255, 255, 0.25); 
+    backdrop-filter: blur(4px); 
+    border-radius: 40px; /* 這裡讓感應區的背景也變成圓角 */
   }
 
   /* 輸入框樣式 */
   input {
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-radius: 20px;
     border: 1px solid #ccc;
-    font-size: 12px;
-    width: 220px;
+    font-size: 13px;
+    width: 240px;
     text-align: center;
     background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     outline: none;
-    transform: translateY(-5px); 
-    transition: transform 0.3s;
+    transform: translateY(-10px); 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 加入彈跳動畫效果 */
   }
   
   .input-zone:hover input {
     transform: translateY(0);
   }
 
-  /* 螢幕區域 */
+  /* --- 螢幕區域 --- */
   .screen-frame {
     width: 100%;
-    height: 360px; 
+    height: 380px; /* 維持高度以觸發 Spotify 列表模式 */
     background-color: #000; 
     border-radius: 12px; 
     border: 3px solid #333; 
     overflow: hidden; 
     margin-bottom: 30px;
-    margin-top: 10px; 
+    margin-top: 15px; 
     padding: 0; 
     flex-shrink: 0; 
     position: relative;
@@ -100,7 +124,7 @@
     display: block; 
   }
 
-  /* 轉盤區域 */
+  /* --- 轉盤區域 --- */
   .click-wheel {
     width: 170px;
     height: 170px;
@@ -115,6 +139,7 @@
     z-index: 10;
   }
 
+  /* 轉盤文字 */
   .wheel-label {
     position: absolute;
     color: #999;
@@ -128,6 +153,7 @@
   .label-prev { left: 20px; }
   .label-next { right: 20px; }
 
+  /* 中間按鈕 */
   .center-button {
     width: 60px;
     height: 60px;
@@ -143,7 +169,7 @@
   <div class="ipod-case">
     
     <div class="input-zone">
-      <input type="text" id="spotifyLink" placeholder="Your Spotify Link" />
+      <input type="text" id="spotifyLink" placeholder="在此貼上 Spotify 連結..." />
     </div>
 
     <div class="screen-frame">
@@ -160,41 +186,42 @@
   </div>
 
 <script>
-  // --- 網頁一打開，先檢查有沒有存檔 ---
+  // --- 功能：載入儲存的歌曲 ---
   window.onload = function() {
-    // 從 localStorage 讀取上次存的網址
     const savedUrl = localStorage.getItem('mySpotifyUrl');
-    
-    // 如果有存檔，就直接套用
     if (savedUrl) {
       document.getElementById('spotifyEmbed').src = savedUrl;
     }
   };
 
+  // --- 功能：監聽 Enter 鍵 ---
   document.getElementById('spotifyLink').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
       changeMusic(this.value);
     }
   });
 
+  // --- 功能：更換音樂與儲存 ---
   function changeMusic(url) {
     let embedUrl = "";
-    if (url.includes("spotify.com")) { // 稍微放寬檢查條件，包含 spotify.com 即可
+    // 檢查網址合法性
+    if (url.includes("spotify.com")) { 
       let cleanUrl = url.split('?')[0]; 
       let pathIndex = url.indexOf(".com");
-      let path = url.substring(pathIndex + 4).split('?')[0];
       
-      embedUrl = `https://open.spotify.com/embed${path}?utm_source=generator&theme=0`;
-      
-      // 更新 iframe
-      document.getElementById('spotifyEmbed').src = embedUrl;
-      
-      // --- 換歌成功後，把網址存進 localStorage ---
-      localStorage.setItem('mySpotifyUrl', embedUrl);
-      
-      // 清空輸入框
-      document.getElementById('spotifyLink').value = "";
-      document.getElementById('spotifyLink').blur();
+      // 防止找不到 .com 的錯誤
+      if (pathIndex !== -1) {
+        let path = url.substring(pathIndex + 4).split('?')[0];
+        embedUrl = `https://open.spotify.com/embed${path}?utm_source=generator&theme=0`;
+        
+        document.getElementById('spotifyEmbed').src = embedUrl;
+        localStorage.setItem('mySpotifyUrl', embedUrl);
+        
+        document.getElementById('spotifyLink').value = "";
+        document.getElementById('spotifyLink').blur();
+      } else {
+         alert("網址格式似乎不太對，請確認複製的是 Spotify 連結");
+      }
     } else {
       alert("請輸入有效的 Spotify 網址");
     }
