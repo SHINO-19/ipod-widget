@@ -57,7 +57,7 @@
 
   <div class="ipod-case">
     <div class="input-zone">
-      <input type="text" id="spotifyLink" placeholder="在此貼上 Spotify 連結..." />
+      <input type="text" id="spotifyLink" placeholder="Your spotify link..." />
     </div>
 
     <div class="screen-frame">
@@ -111,7 +111,7 @@
   // 產生新連結的函式
   function generateNewLink(userUrl) {
     if (!userUrl.includes("spotify.com")) {
-      alert("請貼上正確的 Spotify 連結");
+      alert("Please include a valid Spotify link.");
       return;
     }
 
@@ -128,7 +128,7 @@
     input.setSelectionRange(0, 99999); // 手機版兼容
 
     // 提示使用者
-    alert("✅ 生成成功！\n\n請複製輸入框內的新網址，\n重新 Embed 即可");
+    alert("Generation successful! Please copy the new URL from the input box and re-embed it.");
     
     // 順便預覽一下效果
     updateIframe(userUrl);
