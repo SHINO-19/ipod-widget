@@ -3,176 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notion iPod Widget</title>
-<style>
-  /* --- 基礎設定 --- */
-  body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* 垂直置中 */
-    align-items: center;     /* 水平置中 */
-    min-height: 100vh;       /* 確保高度至少填滿視窗 */
-    margin: 0;
-    background-color: transparent; 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    overflow: hidden; /* 防止縮放時出現捲軸 */
-  }
-
-  /* --- iPod 外殼 --- */
-  .ipod-case {
-    width: 360px; 
-    height: 620px; 
-    background: #f0f0f0; 
-    border-radius: 40px;
-    box-shadow: 
-      inset 0 0 20px rgba(255,255,255,0.8), 
-      inset -5px -5px 15px rgba(0,0,0,0.1), 
-      0 15px 35px rgba(0,0,0,0.2); 
-    padding: 25px;
-    
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative; 
-    box-sizing: border-box;
-
-    /* 設定變形的原點在上方中心 */
-    transform-origin: top center;
-    transition: transform 0.3s ease; /* 讓縮放有動畫效果 */
-  }
-
-  /* --- 響應式設計 --- */
-  /* 當螢幕寬度小於 380px (一般手機) 時，縮小到 0.9 倍 */
-  @media (max-width: 380px) {
-    .ipod-case {
-      transform: scale(0.9);
-      margin-bottom: -60px; /* 縮小後修正下方留白 */
-    }
-  }
-
-  /* 當螢幕寬度小於 340px 時，縮小到 0.8 倍 */
-  @media (max-width: 340px) {
-    .ipod-case {
-      transform: scale(0.8);
-      margin-bottom: -120px; /* 縮小後修正下方留白 */
-    }
-  }
-
-  /* --- 輸入框感應區 --- */
-  .input-zone {
-    position: absolute;
-    top: 0;           
-    left: 0;
-    width: 100%;      
-    height: 60px; /* 加大一點點感應範圍 */    
-    z-index: 20;      
-    display: flex;    
-    justify-content: center;
-    align-items: center;
-    opacity: 0;       
-    transition: opacity 0.3s ease; 
-    border-radius: 40px 40px 0 0; 
-  }
-
-  .input-zone:hover {
-    opacity: 1; 
-    background-color: rgba(255, 255, 255, 0.25); 
-    backdrop-filter: blur(4px); 
-    border-radius: 40px; 
-  }
-
-  /* 輸入框樣式 */
-  input {
-    padding: 10px 14px;
-    border-radius: 20px;
-    border: 1px solid #ccc;
-    font-size: 13px;
-    width: 240px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    outline: none;
-    transform: translateY(-10px); 
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 加入彈跳動畫效果 */
-  }
   
-  .input-zone:hover input {
-    transform: translateY(0);
+<title>Notion iPod Widget (URL Mode)</title>
+  
+<style>
+  body {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    min-height: 100vh; margin: 0; background-color: transparent; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
+  .ipod-case {
+    width: 360px; height: 640px; background: #f0f0f0; border-radius: 40px;
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.8), inset -5px -5px 15px rgba(0,0,0,0.1), 0 15px 35px rgba(0,0,0,0.2);
+    padding: 25px; display: flex; flex-direction: column; align-items: center; position: relative;
+    box-sizing: border-box; transform-origin: top center; transition: transform 0.3s ease;
+  }
+  @media (max-width: 380px) { .ipod-case { transform: scale(0.9); margin-bottom: -60px; } }
+  @media (max-width: 340px) { .ipod-case { transform: scale(0.8); margin-bottom: -120px; } }
+  
+  .input-zone {
+    position: absolute; top: 0; left: 0; width: 100%; height: 60px; z-index: 20;
+    display: flex; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
+    border-radius: 40px 40px 0 0;
+  }
+  .input-zone:hover { opacity: 1; background-color: rgba(255, 255, 255, 0.25); backdrop-filter: blur(4px); border-radius: 40px; }
+  
+  input {
+    padding: 10px 14px; border-radius: 20px; border: 1px solid #ccc; font-size: 13px; width: 260px;
+    text-align: center; background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    outline: none; transform: translateY(-10px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .input-zone:hover input { transform: translateY(0); }
 
-  /* --- 螢幕區域 --- */
   .screen-frame {
-    width: 100%;
-    height: 360px; /* 維持高度以觸發 Spotify 列表模式 */
-    background-color: #000; 
-    border-radius: 12px; 
-    border: 3px solid #333; 
-    overflow: hidden; 
-    margin-bottom: 30px;
-    margin-top: 10px; 
-    padding: 0; 
-    flex-shrink: 0; 
-    position: relative;
-    z-index: 10; 
+    width: 100%; height: 380px; background-color: #000; border-radius: 12px;
+    border: 3px solid #333; overflow: hidden; margin-bottom: 30px; margin-top: 15px;
+    padding: 0; flex-shrink: 0; position: relative; z-index: 10;
   }
+  .screen-frame iframe { width: 100%; height: 100%; border: none; display: block; }
 
-  .screen-frame iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block; 
-  }
-
-  /* --- 轉盤區域 --- */
   .click-wheel {
-    width: 170px;
-    height: 170px;
-    background-color: #fff;
-    border-radius: 50%;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 10;
+    width: 170px; height: 170px; background-color: #fff; border-radius: 50%; position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10;
   }
-
-  /* 轉盤文字 */
-  .wheel-label {
-    position: absolute;
-    color: #999;
-    font-size: 11px;
-    font-weight: bold;
-    font-family: Arial, sans-serif;
-    pointer-events: none; 
-  }
-  .label-menu { top: 20px; }
-  .label-play { bottom: 20px; }
-  .label-prev { left: 20px; }
-  .label-next { right: 20px; }
-
-  /* 中間按鈕 */
-  .center-button {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(145deg, #e6e6e6, #ffffff);
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
+  .wheel-label { position: absolute; color: #999; font-size: 11px; font-weight: bold; font-family: Arial, sans-serif; pointer-events: none; }
+  .label-menu { top: 20px; } .label-play { bottom: 20px; } .label-prev { left: 20px; } .label-next { right: 20px; }
+  .center-button { width: 60px; height: 60px; background: linear-gradient(145deg, #e6e6e6, #ffffff); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   .center-button:active { background: #ddd; }
 </style>
 </head>
+  
 <body>
 
   <div class="ipod-case">
-    
     <div class="input-zone">
-      <input type="text" id="spotifyLink" placeholder="Your Spotify link..." />
+      <input type="text" id="spotifyLink" placeholder="在此貼上 Spotify 連結..." />
     </div>
 
     <div class="screen-frame">
-      <iframe id="spotifyEmbed" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0" width="100%" height="100%" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <iframe id="spotifyEmbed" src="" width="100%" height="100%" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
 
     <div class="click-wheel">
@@ -185,45 +74,64 @@
   </div>
 
 <script>
-  // --- 載入儲存的歌曲 ---
+  // 1. 預設歌曲 (當網址沒有指定歌曲時顯示這首)
+  const defaultUrl = "https://open.spotify.com/playlist/37i9dQZF1DX0XUfTFmNBRM"; 
+
+  // 2. 程式初始化：讀取網址上的 ?song= 參數
   window.onload = function() {
-    const savedUrl = localStorage.getItem('mySpotifyUrl');
-    if (savedUrl) {
-      document.getElementById('spotifyEmbed').src = savedUrl;
+    const urlParams = new URLSearchParams(window.location.search);
+    const songParam = urlParams.get('song');
+    
+    // 如果網址有帶參數，就播參數的歌；否則播預設歌
+    if (songParam) {
+      updateIframe(songParam);
+    } else {
+      updateIframe(defaultUrl);
     }
   };
 
-  // --- 監聽 Enter 鍵 ---
+  // 3. 監聽輸入框：產生新的 Notion 嵌入網址
   document.getElementById('spotifyLink').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
-      changeMusic(this.value);
+      generateNewLink(this.value);
     }
   });
 
-  // --- 更換音樂與儲存 ---
-  function changeMusic(url) {
-    let embedUrl = "";
-    // 檢查網址合法性
-    if (url.includes("spotify.com")) { 
-      let cleanUrl = url.split('?')[0]; 
-      let pathIndex = url.indexOf(".com");
-      
-      // 防止找不到 .com 的錯誤
-      if (pathIndex !== -1) {
-        let path = url.substring(pathIndex + 4).split('?')[0];
-        embedUrl = `https://open.spotify.com/embed${path}?utm_source=generator&theme=0`;
-        
-        document.getElementById('spotifyEmbed').src = embedUrl;
-        localStorage.setItem('mySpotifyUrl', embedUrl);
-        
-        document.getElementById('spotifyLink').value = "";
-        document.getElementById('spotifyLink').blur();
-      } else {
-         alert("網址格式似乎不太對，請確認複製的是 Spotify 連結");
-      }
-    } else {
-      alert("請輸入有效的 Spotify 網址");
+  // 更新 iframe 畫面的函式
+  function updateIframe(spotifyUrl) {
+    if (spotifyUrl.includes(".com")) {
+       // 簡單的網址清洗與轉換
+       let pathIndex = spotifyUrl.indexOf(".com");
+       let path = spotifyUrl.substring(pathIndex + 4).split('?')[0];
+       let embedSrc = `https://open.spotify.com/embed${path}?utm_source=generator&theme=0`;
+       document.getElementById('spotifyEmbed').src = embedSrc;
     }
+  }
+
+  // 產生新連結的函式
+  function generateNewLink(userUrl) {
+    if (!userUrl.includes("spotify.com")) {
+      alert("請貼上正確的 Spotify 連結");
+      return;
+    }
+
+    // 取得目前這個網頁的網址
+    const baseUrl = window.location.href.split('?')[0];
+    
+    // 組合出新的參數網址
+    const newWidgetUrl = `${baseUrl}?song=${encodeURIComponent(userUrl)}`;
+
+    // 將新網址填入輸入框，並全選方便複製
+    const input = document.getElementById('spotifyLink');
+    input.value = newWidgetUrl;
+    input.select();
+    input.setSelectionRange(0, 99999); // 手機版兼容
+
+    // 提示使用者
+    alert("✅ 生成成功！\n\n請複製輸入框內的新網址，\n重新 Embed 即可");
+    
+    // 順便預覽一下效果
+    updateIframe(userUrl);
   }
 </script>
 
